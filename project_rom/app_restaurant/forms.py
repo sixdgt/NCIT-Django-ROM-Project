@@ -9,7 +9,7 @@ class MenuCreateForm(forms.ModelForm):
         widgets = {
             'menu_title': forms.TextInput(attrs={'class': 'form-control mb-3', 'placeholder': 'Enter menu title'}),
             'menu_price': forms.NumberInput(attrs={'class': 'form-control mb-3', 'placeholder': 'Enter menu price'}),
-            'menu_category': forms.TextInput(attrs={'class': 'form-control mb-3', 'placeholder': 'Enter menu category'}),
+            'menu_category': forms.Select(attrs={'class': 'form-control mb-3'}),
             'menu_description': forms.Textarea(attrs={'class': 'form-control mb-3', 'placeholder': 'Enter menu description'}),
         }
         labels = {
