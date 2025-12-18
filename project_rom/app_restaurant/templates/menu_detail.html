@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %} Menu Detail {% endblock %}
+
+{% block content %}
+<section class="container">
+    <h3 class="text-center mb-3">
+        <a href="{% url 'menu.list' %}" class="btn btn-sm btn-info">Back to Menu List</a>
+    </h3>
+    <div class="card p-4">
+        <h2>Product Detail</h2>
+        <hr>
+        <div class="card-body">
+            <h3>{{ data.menu_title }}</h3>
+            <hr>
+            <p><strong>Category:</strong> {{ data.menu_category.category_name }}</p>
+            <p><strong>Price:</strong> {{ data.menu_price }}</p>
+            <p>{{ data.menu_description }}</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

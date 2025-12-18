@@ -2,11 +2,25 @@ from django.shortcuts import redirect, render
 from django.http import HttpResponse
 from app_restaurant.forms import MenuCreateForm
 from app_restaurant.models import Menu, Category
+from django.db.models import Q
 # Create your views here.
 def menu_list(request):
-    context = {
-        "menus": Menu.objects.all()
-    }
+    if request.method == "GET" and "search" in request.GET:
+        search_query = request.GET.get("search")
+        #search_query = request.GET['search']
+        # filter based on menu_title or menu_category
+        data = Menu.objects.filter(Q(menu_title__icontains=search_query) | Q(
+                        menu_category__category_name__icontains=search_query))
+        # filter based on both menu_title and menu_category
+        # data = Menu.objects.filter(menu_title__icontains=search_query, 
+        #                menu_category__category_name__icontains=search_query)
+        context = {
+            "menus": data
+        }
+    else:
+        context = {
+            "menus": Menu.objects.all()
+        }
     return render(request, "menu_list.html", context)
 
 def menu_create(request):
@@ -38,3 +52,18 @@ def menu_edit(request, pk):
     else:
         context = { "form": form }
         return render(request, "menu_edit.html", context)
+
+def menu_detail(request, pk):
+    menu_data = Menu.objects.get(id=pk)
+    context = {
+        'data': menu_data
+    }
+    return render(request, "menu_detail.html", context)
+
+def menu_delete(request, pk):
+    try:
+        menu_data = Menu.objects.get(id=pk)
+        menu_data.delete()
+        return redirect("menu.list")
+    except Menu.DoesNotExist:
+        return HttpResponse("Menu item not found", status=404)
