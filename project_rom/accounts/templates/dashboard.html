@@ -1,11 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <h1>welcome!!</h1>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %} Dashboard {% endblock %}
+
+{% load static %}
+
+{% block custom_css %}
+<!-- if you have multiple css files then you can link over here -->
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="container">
+    <div class="card p-5">
+        <div class="card-header">
+            <h1 class="card-title" id="headOne">Welcome to dashboard {{ user.first_name }}</h1>
+        </div>
+        <div class="card-body">
+            <p>This is our dashboard</p>
+        </div>
+        <a href="{% url 'logout' %}" class="btn btn-sm btn-secondary">Logout</a>
+    </div>
+</section>
+{% endblock %}
+
+{% block custom_js %} 
+<script src="{% static 'js/script.js' %}"></script>
+{% endblock %}

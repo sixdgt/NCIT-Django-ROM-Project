@@ -1,0 +1,16 @@
+body {
+    background-color: bisque !important;
+    font-family: sans-serif;
+}
+
+h1 {
+    color: darkcyan !important;
+    text-align: center;
+    align-items: center;
+}
+
+p {
+    color: firebrick;
+    align-items: center;
+    text-align: center;
+}

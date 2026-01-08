@@ -4,8 +4,10 @@ from app_restaurant.forms import MenuCreateForm
 from app_restaurant.models import Menu, Category
 from django.db.models import Q
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
+@login_required(login_url='login')
 def menu_list(request):
     if request.method == "GET" and "search" in request.GET:
         search_query = request.GET.get("search")
@@ -25,6 +27,7 @@ def menu_list(request):
         }
     return render(request, "menu_list.html", context)
 
+@login_required(login_url='login')
 def menu_create(request):
     # check if the request method is POST
     if request.method == "POST":
@@ -42,6 +45,7 @@ def menu_create(request):
         context = { "form": MenuCreateForm() }
         return render(request, "menu_create.html", context)
 
+@login_required(login_url='login')
 def menu_edit(request, pk):
     menu = Menu.objects.get(id=pk)
     form = MenuCreateForm(instance=menu)
@@ -59,6 +63,7 @@ def menu_edit(request, pk):
         context = { "form": form }
         return render(request, "menu_edit.html", context)
 
+@login_required(login_url='login')
 def menu_detail(request, pk):
     menu_data = Menu.objects.get(id=pk)
     context = {
@@ -66,6 +71,7 @@ def menu_detail(request, pk):
     }
     return render(request, "menu_detail.html", context)
 
+@login_required(login_url='login')
 def menu_delete(request, pk):
     try:
         menu_data = Menu.objects.get(id=pk)

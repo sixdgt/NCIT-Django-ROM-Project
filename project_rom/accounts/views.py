@@ -3,7 +3,22 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
 # Create your views here.
+def send_notification_email(request, to_email, subject, message):
+    """
+    Utility function to send email notification
+    """
+    try:
+        sender = settings.EMAIL_HOST_USER
+        send_mail(subject, message, sender, [to_email], fail_silently=False)
+        # in product do not show the email sent message for registration unless 
+        # it is a verification email
+        messages.add_message(request, messages.SUCCESS, "Email sent successfully!")
+    except Exception as e:
+        messages.add_message(request, messages.ERROR, f"Error sending email: {str(e)}")
+
 def login_view(request):
     """
     It will handle the user login with django authentication
@@ -18,7 +33,7 @@ def login_view(request):
             # login session
             login(request, user)
             messages.add_message(request, messages.SUCCESS, "Login success!")
-            return redirect('dashboad')
+            return redirect('dashboard')
         else:
             messages.add_message(request, messages.ERROR, "Login failed!!")
             return redirect('login')
@@ -30,7 +45,8 @@ def register_view(request):
     """
     # taking inputs from user
     if request.method == "POST":
-        full_name = request.POST.get('full_name')
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
         email = request.POST.get('email')
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -40,20 +56,25 @@ def register_view(request):
             messages.add_message(request, messages.ERROR, "Password do not match!!")
             return redirect('register')
         # checking if email already exist (Note: same for username)
-        if User.objects.filter(email=email):
+        if User.objects.filter(email=email).exists():
             messages.add_message(request, messages.ERROR, "Email already registered!")
             return redirect('register')
-        if User.objects.filter(username=username):
+        if User.objects.filter(username=username).exists():
             messages.add_message(request, messages.ERROR, "Username already taken!")
             return redirect('register')
         # creating user
         user = User.objects.create_user(
-            full_name=full_name,
+            first_name=first_name,
+            last_name=last_name,
             username=username,
             email=email,
             password=password
         )
         user.save()
+        send_notification_email(request, 
+                                email,
+                                "Account Creation",
+                                "Welcome to our restaurant management system!")
         messages.add_message(request, messages.SUCCESS, 
                              "Registered successfully! Please login")
         return redirect('login')
