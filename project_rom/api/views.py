@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from api.serializers import MenuSerializer, CategorySerializer
 from app_restaurant.models import Menu, Category
+from django.http import Http404
 
 # Create your views here.
 class MenuListCreateAPIView(APIView):
@@ -50,11 +51,11 @@ class MenuDetailEditDeleteAPIView(APIView):
         try:
             return Menu.objects.get(pk=pk)
         except Menu.DoesNotExist:
-            return Response({"Error: Menu item not found"}, status=status.HTTP_404_NOT_FOUND)
+            raise Http404
     
     def get(self, request, pk):
         menu = self.get_object(pk)
-        serializer = MenuSerializer(menu)
+        serializer = MenuSerializer(instance=menu)
         context = {
             "status": status.HTTP_200_OK,
             "message": "Menu item fetched successfully",
@@ -65,7 +66,7 @@ class MenuDetailEditDeleteAPIView(APIView):
     def put(self, request, pk):
         menu = self.get_object(pk)
         data = request.data
-        serializer = MenuSerializer(menu, data=data)
+        serializer = MenuSerializer(instance=menu, data=data)
         if serializer.is_valid():
             serializer.save()
             context = {
@@ -81,6 +82,7 @@ class MenuDetailEditDeleteAPIView(APIView):
                 "errors": serializer.errors
             }
             return Response(context, status=status.HTTP_400_BAD_REQUEST)
+    
     def delete(self, request, pk):
         menu = self.get_object(pk)
         menu.delete()
