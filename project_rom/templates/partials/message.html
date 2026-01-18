@@ -1,15 +1,26 @@
 {% if messages %}
+<div class="message-container">
     {% for message in messages %}
-    <div 
-        class="container alert alert-{{ message.tags }}
-        alert-dismissible fade show" role="alert">
-        {{ message }}
-        <button 
-            type="button" 
-            class="btn-close"
-            data-bs-dismiss="alert"
-            aria-label="Close">
-        </button>
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show modern-alert shadow-lg" role="alert">
+        <div class="d-flex align-items-center">
+            <div class="alert-icon-wrap me-3">
+                {% if message.tags == 'success' %}
+                    <i class="bi bi-check-circle-fill"></i>
+                {% elif message.tags == 'danger' or message.tags == 'error' %}
+                    <i class="bi bi-exclamation-octagon-fill"></i>
+                {% elif message.tags == 'warning' %}
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                {% else %}
+                    <i class="bi bi-info-circle-fill"></i>
+                {% endif %}
+            </div>
+            <div class="alert-content">
+                <strong class="d-block">{{ message.tags|title }}</strong>
+                <span class="small">{{ message }}</span>
+            </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
     {% endfor %}
+</div>
 {% endif %}

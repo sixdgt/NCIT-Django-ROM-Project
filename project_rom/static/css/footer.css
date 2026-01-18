@@ -1,0 +1,25 @@
+.footer-full-width {
+    background: var(--secondary-color-dark) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.footer-brand {
+    font-size: 1.25rem;
+    letter-spacing: -0.5px;
+}
+
+.footer-link {
+    color: rgba(255, 255, 255, 0.6);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+    color: var(--primary-color-mid, #0d6efd);
+}
+
+.copyright-text {
+    font-weight: 500;
+}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block title %} Kitch Dashboard | Django ROM {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5" style="margin-top: 60px;">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <h2 class="fw-bold"><i class="bi bi-fire text-danger me-2"></i>Live Kitchen Queue</h2>
+            <span class="badge bg-dark rounded-pill px-3 py-2">Active Tickets: {{ tickets.count }}</span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for ticket in tickets %}
+        <div class="col-md-4 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 rounded-4">
+                <div class="card-header {% if ticket.order_status == 'PENDING' %}bg-warning{% else %}bg-info text-white{% endif %} py-3">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold">#{{ ticket.order_code }}</span>
+                        <span>Table {{ ticket.table.table_number }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        {% for item in ticket.orderitem_set.all %}
+                        <li class="d-flex justify-content-between mb-2">
+                            <span><strong>{{ item.quantity }}x</strong> {{ item.menu.menu_title }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <hr>
+                    <p class="small text-muted mb-0"><i class="bi bi-clock me-1"></i> Received: {{ ticket.order_date|time:"H:i" }}</p>
+                </div>
+                <div class="card-footer bg-white border-0 pb-3">
+                    <div class="d-grid gap-2">
+                        {% if ticket.order_status == 'PENDING' %}
+                            <a href="{% url 'update_status' ticket.id 'IN_PROGRESS' %}" class="btn btn-primary rounded-pill">Start Cooking</a>
+                        {% else %}
+                            <a href="{% url 'update_status' ticket.id 'COMPLETED' %}" class="btn btn-success rounded-pill">Ready to Serve</a>
+                        {% endif %}
+                        
+                        <button type="button" class="btn btn-link text-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cancelModal{{ ticket.id }}">
+                            Cancel Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="cancelModal{{ ticket.id }}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4">
+                    <div class="modal-body text-center p-4">
+                        <i class="bi bi-exclamation-octagon text-danger display-4"></i>
+                        <h4 class="fw-bold mt-3">Cancel Ticket?</h4>
+                        <p class="text-muted">This will remove ticket #{{ ticket.order_code }} from the kitchen.</p>
+                        <div class="d-grid gap-2 d-md-block">
+                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Back</button>
+                            <a href="{% url 'cancel_kitchen_order' ticket.id %}" class="btn btn-danger rounded-pill px-4">Confirm Cancellation</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-check2-circle display-1 text-muted"></i>
+            <h3 class="mt-3 text-muted">All clear! No pending orders.</h3>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

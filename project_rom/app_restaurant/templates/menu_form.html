@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %} {{ title|default:"Create Menu Item" }} {% endblock %}
+
+{% load static %}
+{% block custom_css %}
+  <link rel="stylesheet" href="{% static 'css/menu.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex align-items-center mb-4">
+                <a href="{% url 'menu.list' %}" class="btn btn-light rounded-circle me-3 shadow-sm">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <div>
+                    <h2 class="fw-bold mb-0">{{ title|default:"Add New Dish" }}</h2>
+                    <p class="text-muted mb-0">Fill in the details to add a new item to your restaurant menu.</p>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" action="">
+                        {% csrf_token %}
+                        <div class="row">
+                            {% for field in form %}
+                            <div class="{% if 'description' in field.name %}col-12{% else %}col-md-6{% endif %} mb-3">
+                                <label class="form-label fw-bold small text-uppercase" for="{{ field.id_for_label }}">
+                                    {{ field.label }}
+                                </label>
+                                
+                                {# Render the field with Bootstrap classes #}
+                                {{ field }}
+                                
+                                {% if field.help_text %}
+                                    <div class="form-text small">{{ field.help_text }}</div>
+                                {% endif %}
+                                
+                                {% if field.errors %}
+                                    {% for error in field.errors %}
+                                        <div class="text-danger extra-small mt-1"><i class="bi bi-exclamation-circle me-1"></i>{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <hr class="my-4 opacity-25">
+
+                        <div class="d-flex justify-content-end align-items-center gap-3">
+                            <a href="{% url 'menu.list' %}" class="text-decoration-none text-muted fw-bold small">Cancel</a>
+                            <button type="submit" class="btn btn-primary px-5 rounded-pill shadow-sm fw-bold">
+                                {% if 'Edit' in title %}Update Dish{% else %}Create Dish{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

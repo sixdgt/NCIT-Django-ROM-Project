@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %} Daily Sales Report {% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h2 class="fw-bold mb-4">Daily Performance</h2>
+
+    <div class="row g-3 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-primary text-white p-4 rounded-4">
+                <small class="text-white-50">Total Revenue (Today)</small>
+                <h1 class="fw-bold mb-0">${{ total_revenue|floatformat:2 }}</h1>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-white p-4 rounded-4">
+                <small class="text-muted">Total Orders</small>
+                <h1 class="fw-bold mb-0 text-dark">{{ total_count }}</h1>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm bg-white p-4 rounded-4">
+                <small class="text-muted">Avg. Order Value</small>
+                <h1 class="fw-bold mb-0 text-success">
+                    <div class="stat-card">
+                        <h6>Avg. Ticket Size</h6>
+                        <h3>${{ avg_order_value|floatformat:2 }}</h3>
+                    </div>
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="fw-bold">Top Selling Items</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless align-middle">
+                        <tbody>
+                            {% for item in popular_items %}
+                            <tr>
+                                <td class="fw-bold">{{ item.menu_item__menu_title }}</td>
+                                <td class="text-end text-muted">{{ item.total_qty }} sold</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="fw-bold">Recent Completed Orders</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Order ID</th>
+                                <th>Table</th>
+                                <th>Time</th>
+                                <th class="text-end pe-4">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td class="ps-4 fw-bold">#{{ order.id }}</td>
+                                <td>Table {{ order.table.table_number }}</td>
+                                <td>{{ order.created_at|time:"H:i" }}</td>
+                                <td class="text-end pe-4 text-success fw-bold">${{ order.total_amount }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %} Welcome | Restaurant Pro {% endblock %}
+
+{% load static %}
+{% block custom_css %}
+<link rel="stylesheet" href="{% static 'css/hero.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% include 'layouts/hero.html' %}
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Everything you need</h2>
+            <p class="text-muted">Streamline your daily operations in one place.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="p-4 shadow-sm bg-white rounded">
+                    <div class="mb-3">🥘</div>
+                    <h4>Menu Management</h4>
+                    <p class="text-muted">Easily update your dishes, prices, and daily specials in real-time.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="p-4 shadow-sm bg-white rounded">
+                    <div class="mb-3">📊</div>
+                    <h4>Order Tracking</h4>
+                    <p class="text-muted">Keep track of every table, kitchen ticket, and delivery order.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="p-4 shadow-sm bg-white rounded">
+                    <div class="mb-3">👥</div>
+                    <h4>Staff Management</h4>
+                    <p class="text-muted">Manage shifts, roles, and permissions for your entire team.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light text-dark text-center">
+    <div class="container">
+        <h2 class="mb-3">Ready to digitize your kitchen?</h2>
+        <p class="mb-4">Join hundreds of restaurants growing their business with us.</p>
+        <button class="btn btn-warning btn-lg">Get Started Today</button>
+    </div>
+</section>
+
+{% endblock %}

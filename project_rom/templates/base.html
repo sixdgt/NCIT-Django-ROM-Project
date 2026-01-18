@@ -5,13 +5,17 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <title>{% block title %} {% endblock %}</title>
+    {% load static %}
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- Bootstrap Icons CDN -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    <title>{% block title %} {% endblock %}</title>
-    
-     <!-- {% load static %}
-     <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'css/root.css' %}">
+    <link rel="stylesheet" href="{% static 'css/navbar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/footer.css' %}">
     <!-- for custom page css -->
     {% block custom_css %} {% endblock %}
   </head>
@@ -25,9 +29,27 @@
     <!-- for body content -->
     {% block content %} {% endblock %}
     
+    <!-- footer -->
+    {% include 'layouts/footer.html' %}
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
     <!-- for custom page js -->
     {% block custom_js %} {% endblock %}
+
+    <script>
+      // Wait for the DOM to load
+      document.addEventListener('DOMContentLoaded', function() {
+          // Find all alerts in the message container
+          var alerts = document.querySelectorAll('.modern-alert');
+          
+          alerts.forEach(function(alert) {
+              // Set a timeout to trigger the Bootstrap fade-out
+              setTimeout(function() {
+                  var bsAlert = new bootstrap.Alert(alert);
+                  bsAlert.close();
+              }, 5000); // 5000ms = 5 seconds
+          });
+      });
+    </script>
   </body>
 </html>

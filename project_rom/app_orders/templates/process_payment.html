@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %} Process Payment | Django ROM {% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-primary text-white p-4">
+                    <h4 class="mb-0">Finalize Bill: {{ order.order_code }}</h4>
+                    <small>Table {{ order.table.table_number }}</small>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Subtotal</label>
+                            <input type="text" class="form-control bg-light" value="${{ order.total_price }}" readonly>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Discount Amount ($)</label>
+                            <input type="number" name="discount" step="0.01" class="form-control" placeholder="0.00">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Payment Method</label>
+                            <select name="payment_method" class="form-select">
+                                <option value="Cash">Cash</option>
+                                <option value="Card">Credit/Debit Card</option>
+                                <option value="Online">Digital Wallet</option>
+                            </select>
+                        </div>
+
+                        <hr class="my-4">
+                        <button type="submit" class="btn btn-success w-100 py-3 rounded-pill fw-bold">
+                            Mark Paid & Close Table
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

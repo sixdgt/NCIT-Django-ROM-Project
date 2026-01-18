@@ -1,22 +1,89 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %} Menu Detail {% endblock %}
+{% block title %} Dish Detail | {{ data.menu_title }} {% endblock %}
 
 {% block content %}
-<section class="container">
-    <h3 class="text-center mb-3">
-        <a href="{% url 'menu.list' %}" class="btn btn-sm btn-info">Back to Menu List</a>
-    </h3>
-    <div class="card p-4">
-        <h2>Product Detail</h2>
-        <hr>
-        <div class="card-body">
-            <h3>{{ data.menu_title }}</h3>
-            <hr>
-            <p><strong>Category:</strong> {{ data.menu_category.category_name }}</p>
-            <p><strong>Price:</strong> {{ data.menu_price }}</p>
-            <p>{{ data.menu_description }}</p>
+<section class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex align-items-center mb-4">
+                <a href="{% url 'menu.list' %}" class="btn btn-light rounded-circle me-3 shadow-sm">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <h4 class="fw-bold mb-0">Menu Management</h4>
+            </div>
+
+            <div class="card border-0 shadow-lg overflow-hidden rounded-4">
+                <div class="row g-0">
+                    <div class="col-md-1 bg-warning d-none d-md-block" style="opacity: 0.8;"></div>
+                    
+                    <div class="col-md-11 p-5 bg-white">
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div>
+                                <span class="badge bg-warning-soft text-warning rounded-pill mb-2 px-3">
+                                    {{ data.menu_category.category_name }}
+                                </span>
+                                <h1 class="fw-bold display-5">{{ data.menu_title }}</h1>
+                            </div>
+                            
+                            <div class="btn-group shadow-sm">
+                                <a href="{% url 'menu.edit' pk=data.id %}" class="btn btn-outline-warning btn-sm px-3">
+                                    <i class="bi bi-pencil-square me-1"></i> Edit
+                                </a>
+                                <button type="button" class="btn btn-outline-danger btn-sm px-3" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                    <i class="bi bi-trash me-1"></i> Delete
+                                </button>
+                                <a href="{% url 'menu.list' %}" class="btn btn-dark btn-sm px-3">
+                                    <i class="bi bi-grid-3x3-gap me-1"></i> View All
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="row g-4 mt-2 py-4 border-top border-bottom">
+                            <div class="col-md-4 border-end">
+                                <p class="text-muted small text-uppercase mb-1">Selling Price</p>
+                                <h2 class="text-success fw-bold mb-0">${{ data.menu_price }}</h2>
+                            </div>
+                            <div class="col-md-8 ps-md-4">
+                                <p class="text-muted small text-uppercase mb-1">Availability</p>
+                                <span class="badge bg-success-soft text-success rounded-pill px-3 py-2">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Active
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="mt-5">
+                            <h5 class="fw-bold mb-3">Description</h5>
+                            <div class="p-4 bg-light rounded-4">
+                                <p class="text-dark lead mb-0">{{ data.menu_description|default:"No description provided." }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </section>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 pt-4 px-4">
+                <h5 class="modal-title fw-bold" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body px-4 pb-4">
+                <p class="text-muted">Are you sure you want to remove <strong>"{{ data.menu_title }}"</strong>? This dish will be permanently deleted from the menu and cannot be recovered.</p>
+                <div class="d-flex gap-2 mt-4">
+                    <form action="{% url 'menu.delete' pk=data.id %}" method="POST" class="w-100">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger w-100 rounded-pill py-2 fw-bold">Delete Item</button>
+                    </form>
+                    <button type="button" class="btn btn-light w-100 rounded-pill py-2" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

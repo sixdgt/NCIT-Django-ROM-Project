@@ -1,8 +1,9 @@
 from django.urls import path
-from app_restaurant.views import menu_list, menu_create, menu_edit,\
-menu_delete, menu_detail
+from app_restaurant.views import (menu_list, menu_create, menu_edit,
+menu_delete, menu_detail, landing_page)
 
 urlpatterns = [
+    path('', landing_page, name='landing'),
     path('menu/list/', menu_list, name='menu.list'),
     path('menu/create/', menu_create, name='menu.create'),
     path('menu/edit/<int:pk>/', menu_edit, name='menu.edit'),

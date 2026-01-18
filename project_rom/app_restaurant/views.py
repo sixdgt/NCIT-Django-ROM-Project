@@ -1,67 +1,101 @@
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.http import HttpResponse
 from app_restaurant.forms import MenuCreateForm
 from app_restaurant.models import Menu, Category
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 
 # Create your views here.
+def landing_page(request):
+    return render(request, "landing.html")
+# @login_required(login_url='login')
+# def menu_list(request):
+#     if request.method == "GET" and "search" in request.GET:
+#         search_query = request.GET.get("search")
+#         #search_query = request.GET['search']
+#         # filter based on menu_title or menu_category
+#         data = Menu.objects.filter(Q(menu_title__icontains=search_query) | Q(
+#                         menu_category__category_name__icontains=search_query))
+#         # filter based on both menu_title and menu_category
+#         # data = Menu.objects.filter(menu_title__icontains=search_query, 
+#         #                menu_category__category_name__icontains=search_query)
+#         context = {
+#             "menus": data
+#         }
+#     else:
+#         context = {
+#             "menus": Menu.objects.all()
+#         }
+#     return render(request, "menu_list.html", context)
+
 @login_required(login_url='login')
 def menu_list(request):
+    # Search logic
     if request.method == "GET" and "search" in request.GET:
         search_query = request.GET.get("search")
-        #search_query = request.GET['search']
-        # filter based on menu_title or menu_category
-        data = Menu.objects.filter(Q(menu_title__icontains=search_query) | Q(
-                        menu_category__category_name__icontains=search_query))
-        # filter based on both menu_title and menu_category
-        # data = Menu.objects.filter(menu_title__icontains=search_query, 
-        #                menu_category__category_name__icontains=search_query)
-        context = {
-            "menus": data
-        }
+        # Filter based on menu_title OR menu_category name
+        menu_queryset = Menu.objects.filter(
+            Q(menu_title__icontains=search_query) | 
+            Q(menu_category__category_name__icontains=search_query)
+        ).order_by('-id')
     else:
-        context = {
-            "menus": Menu.objects.all()
-        }
+        menu_queryset = Menu.objects.all().order_by('-id')
+
+    # Pagination Logic
+    # We use 5 per page to match your Product List settings
+    paginator = Paginator(menu_queryset, 5) 
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        "menus": page_obj, # This now contains the paginated object
+    }
     return render(request, "menu_list.html", context)
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 def menu_create(request):
-    # check if the request method is POST
+    # Pass POST data or None to handle both initial load and submission
+    form = MenuCreateForm(request.POST or None)
+    
     if request.method == "POST":
-        request_data = request.POST
-        db_data = MenuCreateForm(request_data)
-        if db_data.is_valid():
-            db_data.save()
-            messages.add_message(request, messages.SUCCESS, "Menu added successfully!!")
+        if form.is_valid():
+            form.save()
+            messages.success(request, "New dish added to the menu successfully!")
             return redirect("menu.list")
         else:
-            messages.add_message(request, messages.ERROR, "Something went wrong!!")
-            return redirect("menu.create")
-    else:
-        # if the request method is GET or page request then loading the form
-        context = { "form": MenuCreateForm() }
-        return render(request, "menu_create.html", context)
+            messages.error(request, "Failed to add menu item. Please check the form.")
+    
+    context = {
+        "title": "Add New Dish",
+        "form": form,
+        "button_text": "Create Dish"
+    }
+    return render(request, "menu_form.html", context)
 
-@login_required(login_url='login')
+@login_required(login_url="login")
 def menu_edit(request, pk):
-    menu = Menu.objects.get(id=pk)
-    form = MenuCreateForm(instance=menu)
+    # Use get_object_or_404 for better error handling (404 instead of 500)
+    menu_item = get_object_or_404(Menu, id=pk)
+    
+    # Instance is passed to pre-fill the form
+    form = MenuCreateForm(request.POST or None, instance=menu_item)
+    
     if request.method == "POST":
-        request_data = request.POST
-        db_data = MenuCreateForm(request_data, instance=menu)
-        if db_data.is_valid():
-            db_data.save()
-            messages.add_message(request, messages.SUCCESS, "Menu udpated successfully!")
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"'{menu_item.menu_title}' updated successfully!")
             return redirect("menu.list")
         else:
-            messages.add_message(request, messages.ERROR, "Something went wrong!")
-            return redirect("menu.edit", pk=pk)
-    else:
-        context = { "form": form }
-        return render(request, "menu_edit.html", context)
+            messages.error(request, "Update failed. Please correct the errors.")
+
+    context = {
+        "title": f"Edit Dish: {menu_item.menu_title}",
+        "form": form,
+        "button_text": "Update Dish"
+    }
+    return render(request, "menu_form.html", context) # Note: Using the same template!
 
 @login_required(login_url='login')
 def menu_detail(request, pk):
@@ -73,11 +107,13 @@ def menu_detail(request, pk):
 
 @login_required(login_url='login')
 def menu_delete(request, pk):
-    try:
-        menu_data = Menu.objects.get(id=pk)
-        menu_data.delete()
-        messages.add_message(request, messages.ERROR, "Menu deleted successfully!")
+    # Use get_object_or_404 to handle missing IDs gracefully
+    menu_item = get_object_or_404(Menu, id=pk)
+    
+    if request.method == "POST":
+        menu_item.delete()
+        messages.warning(request, f"'{menu_item.menu_title}' has been removed from the menu.")
         return redirect("menu.list")
-    except Menu.DoesNotExist:
-        messages.add_message(request, messages.WARNING, "Menu not found")
-        return redirect("menu.list")
+    
+    # If GET, show the confirmation page
+    return render(request, "menu_delete.html", {"menu": menu_item})

@@ -1,0 +1,16 @@
+.pagination .page-link {
+    border: none;
+    color: var(--primary-color-dark);
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color-mid);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef;
+}

@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %} Table Detail | Django ROM {% endblock %}
+
+{% block content %}
+<div class="container py-5" style="margin-top: 60px;">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <h2 class="fw-bold"><i class="bi bi-grid-3x3-gap me-2"></i>Floor Plan</h2>
+            <p class="text-muted">Manage your restaurant tables and seating capacity.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <button class="btn btn-primary rounded-pill px-4 shadow-sm" data-bs-toggle="modal" data-bs-target="#addTableModal">
+                <i class="bi bi-plus-lg me-2"></i>Add Table
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for table in tables %}
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-3 {% if not table.table_status %}bg-light border-start border-4 border-secondary{% else %}border-start border-4 border-success{% endif %}">
+                <div class="card-body">
+                    <div class="display-5 fw-bold mb-1 {% if table.table_status %}text-dark{% else %}text-muted{% endif %}">
+                        {{ table.table_number }}
+                    </div>
+                    <p class="text-muted mb-3"><i class="bi bi-people me-1"></i> {{ table.table_capacity }} Seats</p>
+                    
+                    <div class="mb-3">
+                        {% if table.table_status %}
+                            <span class="badge bg-success-soft text-success rounded-pill px-3">Available</span>
+                        {% else %}
+                            <span class="badge bg-secondary text-white rounded-pill px-3">Occupied</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="{% url 'table_update' table.pk %}" class="btn btn-sm btn-outline-dark rounded-circle" title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <button class="btn btn-sm btn-outline-danger rounded-circle" 
+                                data-bs-toggle="modal" data-bs-target="#deleteModal{{ table.pk }}" title="Remove">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteModal{{ table.pk }}" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content rounded-4 border-0">
+                    <div class="modal-body p-4 text-center">
+                        <i class="bi bi-exclamation-triangle text-danger display-4"></i>
+                        <h4 class="fw-bold mt-3">Remove Table {{ table.table_number }}?</h4>
+                        <p class="text-muted">This action cannot be undone. You won't be able to assign orders to this table.</p>
+                        <div class="d-grid gap-2 d-md-block mt-4">
+                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
+                            <a href="{% url 'table_delete' table.pk %}" class="btn btn-danger rounded-pill px-4">Confirm Delete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="modal fade" id="addTableModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="fw-bold">Create New Table</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Table Number</label>
+                        <input type="number" name="table_number" class="form-control rounded-3" placeholder="e.g. 15" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Seating Capacity</label>
+                        <input type="number" name="table_capacity" class="form-control rounded-3" placeholder="Number of guests" required>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

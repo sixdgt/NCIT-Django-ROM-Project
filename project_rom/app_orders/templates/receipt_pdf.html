@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        @page { size: a6 portrait; margin: 1cm; }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: 10pt; }
+        .text-center { text-align: center; }
+        .fw-bold { font-weight: bold; }
+        .hr { border-bottom: 1px dashed #000; margin: 10px 0; }
+        table { width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="text-center">
+        <h2 class="fw-bold">RESTAURANT NAME</h2>
+        <p>123 Main Street, City<br>Tel: 555-0199</p>
+    </div>
+
+    <div class="hr"></div>
+    
+    <p>
+        <strong>Order:</strong> #{{ order.id }}<br>
+        <strong>Table:</strong> {{ order.table.table_number }}<br>
+        <strong>Date:</strong> {{ order.created_at|date:"M d, Y H:i" }}
+    </p>
+
+    <div class="hr"></div>
+
+    <table>
+        <thead>
+            <tr>
+                <th align="left">Item</th>
+                <th align="center">Qty</th>
+                <th align="right">Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.menu_item.menu_title }}</td>
+                <td align="center">{{ item.quantity }}</td>
+                <td align="right">${{ item.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="hr"></div>
+
+    <table class="fw-bold">
+        <tr>
+            <td>TOTAL</td>
+            <td align="right">${{ order.total_amount }}</td>
+        </tr>
+    </table>
+
+    <div class="hr" style="margin-top: 30px;"></div>
+    <p class="text-center">Thank you for dining with us!</p>
+</body>
+</html>

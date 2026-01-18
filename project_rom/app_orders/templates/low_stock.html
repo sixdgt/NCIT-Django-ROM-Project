@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container py-5" style="margin-top: 50px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-box-seam text-danger me-2"></i>Inventory Procurement Report</h2>
+        <button onclick="window.print()" class="btn btn-outline-dark rounded-pill">
+            <i class="bi bi-printer me-2"></i>Print for Supplier
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header bg-danger text-white py-3 rounded-top-4">
+            <h5 class="mb-0">Critical: Out of Stock (86 List)</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Item Name</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th class="text-end pe-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in out_of_stock %}
+                    <tr>
+                        <td class="ps-4 fw-bold">{{ item.menu_title }}</td>
+                        <td>{{ item.category.name }}</td>
+                        <td><span class="text-danger">0</span></td>
+                        <td class="text-end pe-4"><span class="badge bg-danger">REORDER IMMEDIATELY</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-center py-4 text-muted">No items are completely out of stock.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header bg-warning py-3 rounded-top-4">
+            <h5 class="mb-0 text-dark">Warning: Low Stock (Below {{ threshold }})</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">Item Name</th>
+                        <th>Category</th>
+                        <th>Current Stock</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in low_stock %}
+                    <tr>
+                        <td class="ps-4 fw-bold">{{ item.menu_title }}</td>
+                        <td>{{ item.category.name }}</td>
+                        <td><span class="fw-bold text-warning">{{ item.stock_quantity }}</span></td>
+                        <td class="text-end pe-4">
+                            <a href="{% url 'menu.list' %}" class="btn btn-sm btn-outline-primary">Update Stock</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

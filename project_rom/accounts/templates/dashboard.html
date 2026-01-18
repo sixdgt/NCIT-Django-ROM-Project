@@ -1,28 +1,143 @@
 {% extends 'base.html' %}
-
-{% block title %} Dashboard {% endblock %}
-
 {% load static %}
 
-{% block custom_css %}
-<!-- if you have multiple css files then you can link over here -->
-<link rel="stylesheet" href="{% static 'css/style.css' %}">
-{% endblock %}
+{% block title %}Kitchen & Floor Dashboard | DjangoROM{% endblock %}
 
 {% block content %}
-<section class="container">
-    <div class="card p-5">
-        <div class="card-header">
-            <h1 class="card-title" id="headOne">Welcome to dashboard {{ user.first_name }}</h1>
+<div class="dashboard-wrapper py-5 bg-light" style="min-height: 100vh; margin-top: 50px;">
+    <div class="container">
+        
+        {% if low_stock_count > 0 %}
+        <div class="alert alert-danger border-0 shadow-sm rounded-4 d-flex align-items-center mb-4">
+            <i class="bi bi-exclamation-triangle-fill fs-4 me-3 text-danger"></i>
+            <div class="flex-grow-1">
+                <strong>Inventory Alert:</strong> {{ low_stock_count }} items are critically low or out of stock.
+            </div>
+            <a href="{% url 'menu.list' %}" class="btn btn-danger btn-sm rounded-pill px-3">Restock Now</a>
         </div>
-        <div class="card-body">
-            <p>This is our dashboard</p>
-        </div>
-        <a href="{% url 'logout' %}" class="btn btn-sm btn-secondary">Logout</a>
-    </div>
-</section>
-{% endblock %}
+        {% endif %}
 
-{% block custom_js %} 
-<script src="{% static 'js/script.js' %}"></script>
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-8">
+                <h2 class="fw-bold text-dark">Restaurant Overview: {{ user.username|title }} 👋</h2>
+                <p class="text-muted">Real-time status of orders and floor occupancy.</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <span class="badge bg-white text-dark shadow-sm p-3 rounded-pill border">
+                    <i class="bi bi-calendar3 me-2 text-primary"></i> {% now "F j, Y" %}
+                </span>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card border-0 p-4 shadow-sm bg-white rounded-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary p-3 rounded-3 me-3"><i class="bi bi-currency-dollar fs-4"></i></div>
+                        <h3 class="fw-bold mb-0">${{ total_revenue|floatformat:2 }}</h3>
+                    </div>
+                    <p class="text-muted small mb-0">Today's Revenue</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 p-4 shadow-sm bg-white rounded-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stat-icon bg-success bg-opacity-10 text-success p-3 rounded-3 me-3"><i class="bi bi-bag-check fs-4"></i></div>
+                        <h3 class="fw-bold mb-0">{{ orders_today }}</h3>
+                    </div>
+                    <p class="text-muted small mb-0">Total Orders Today</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 p-4 shadow-sm bg-white rounded-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stat-icon bg-info bg-opacity-10 text-info p-3 rounded-3 me-3"><i class="bi bi-list-stars fs-4"></i></div>
+                        <h3 class="fw-bold mb-0">{{ total_products }}</h3>
+                    </div>
+                    <p class="text-muted small mb-0">Menu Items</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card border-0 p-4 shadow-sm bg-dark rounded-4 text-white">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="stat-icon bg-warning text-dark p-3 rounded-3 me-3"><i class="bi bi-lightning-charge fs-4"></i></div>
+                        <h3 class="fw-bold mb-0">{{ occupancy_percent }}%</h3>
+                    </div>
+                    <p class="text-white-50 small mb-0">Floor Occupancy</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <div class="card border-0 shadow-sm p-4 h-100 rounded-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-bold mb-0">Active Kitchen Tickets</h5>
+                        <a href="{% url 'kitchen_dashboard' %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Go to Kitchen</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Table</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for sale in recent_transactions %}
+                                <tr>
+                                    <td><span class="fw-bold text-primary">{{ sale.order_code }}</span></td>
+                                    <td>Table {{ sale.table.table_number }}</td>
+                                    <td class="fw-bold">${{ sale.total_price }}</td>
+                                    <td>
+                                        <span class="badge rounded-pill 
+                                            {% if sale.order_status == 'PENDING' %}bg-warning text-dark{% else %}bg-info{% endif %}">
+                                            {{ sale.get_order_status_display }}
+                                        </span>
+                                    </td>
+                                    <td><a href="{% url 'kitchen_dashboard' %}" class="btn btn-sm btn-light">View</a></td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5" class="text-center py-5 text-muted">No tickets in prep.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mb-4">
+                <div class="card border-0 shadow-sm p-4 h-100 rounded-4">
+                    <h5 class="fw-bold mb-4">Operations</h5>
+                    <div class="d-grid gap-3">
+                        <a href="{% url 'order_management' %}" class="btn btn-primary rounded-pill py-3 fw-bold shadow-sm">
+                            <i class="bi bi-plus-lg me-2"></i> New Table Order
+                        </a>
+                        <a href="{% url 'table_list' %}" class="btn btn-outline-dark rounded-pill py-2">
+                            <i class="bi bi-grid-3x3-gap me-2"></i> Floor Plan / Map
+                        </a>
+                        <a href="{% url 'order_history' %}" class="btn btn-outline-dark rounded-pill py-2">
+                            <i class="bi bi-clock-history me-2"></i> Order History
+                        </a>
+                        <hr>
+                        <div class="p-4 bg-light rounded-4">
+                            <h6 class="fw-bold mb-3 small text-uppercase text-muted">Floor Saturation</h6>
+                            <div class="d-flex justify-content-between mb-2 small">
+                                <span>Occupied Capacity</span>
+                                <span class="fw-bold text-primary">{{ occupancy_percent }}%</span>
+                            </div>
+                            <div class="progress" style="height: 10px; border-radius: 5px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+                                     style="width: {{ occupancy_percent }} %"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

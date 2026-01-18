@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %} Create Order {% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4" style="background-color: #f8f9fa; min-height: 90vh;">
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm p-3 mb-4">
+                <form method="GET" action="" class="row g-2">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0"><i class="bi bi-search"></i></span>
+                            <input type="text" name="search" class="form-control rounded-pill border-0 bg-light" 
+                                   placeholder="Search dish..." value="{{ request.GET.search }}">
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex gap-2">
+                        <a href="?category=all" class="btn btn-sm btn-dark rounded-pill px-3">All</a>
+                        {% for cat in categories %}
+                        <a href="?category={{ cat.category_name }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                            {{ cat.category_name }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+
+            <div class="row g-3" id="menuGrid">
+                {% for item in menus %}
+                <div class="col-md-4 mb-3">
+                    <div class="card h-100 shadow-sm {% if item.stock_quantity <= 0 %}opacity-50{% endif %}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="card-title fw-bold">{{ item.menu_title }}</h5>
+                                {% if item.stock_quantity <= 0 %}
+                                    <span class="badge bg-danger text-white">Sold Out</span>
+                                {% elif item.stock_quantity <= 5 %}
+                                    <span class="badge bg-warning text-dark">Only {{ item.stock_quantity }} left</span>
+                                {% endif %}
+                            </div>
+                            
+                            <p class="text-muted small">{{ item.menu_description|truncatewords:10 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold text-primary">${{ item.menu_price }}</span>
+                                
+                                {% if item.stock_quantity > 0 %}
+                                    <a href="{% url 'add_to_order' item.id %}" class="btn btn-sm btn-primary rounded-pill px-3">
+                                        <i class="bi bi-plus-lg"></i> Add
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-sm btn-secondary rounded-pill px-3" disabled>Unavailable</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-lg sticky-top" style="top: 20px; border-radius: 20px;">
+                <div class="card-header bg-white border-0 py-3 d-flex justify-content-between">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-receipt me-2"></i>Active Ticket</h5>
+                    <a href="{% url 'clear_order' %}" class="text-danger small text-decoration-none">Clear All</a>
+                </div>
+
+                <div class="card-body p-0">
+                    <form action="{% url 'submit_final_order' %}" method="POST">
+                        {% csrf_token %}
+                        <div class="px-4 py-2">
+                            <div class="mb-2">
+                                <label class="form-label small fw-bold">Select Table</label>
+                                <select name="table_id" class="form-select border-0 bg-light rounded-3" required>
+                                    <option value="">Choose Table...</option>
+                                    {% for t in tables %}
+                                    <option value="{{ t.id }}">Table {{ t.table_number }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Select Customer</label>
+                                <select name="customer_id" class="form-select border-0 bg-light rounded-3">
+                                    <option value="">Walk-in Customer</option>
+                                    {% for c in customers %}
+                                    <option value="{{ c.id }}">{{ c.customer_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="max-height: 300px; overflow-y: auto;">
+                            <table class="table align-middle mb-0">
+                                <thead class="bg-light small">
+                                    <tr>
+                                        <th class="ps-4">Item</th>
+                                        <th class="text-center">Qty</th>
+                                        <th>Total</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in order_items %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <span class="d-block fw-bold small">{{ item.menu.menu_title }}</span>
+                                            <small class="text-muted">${{ item.menu.menu_price }}</small>
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                                <a href="{% url 'reduce_order_item' item.menu.id %}" class="btn btn-sm btn-light py-0">-</a>
+                                                <span class="badge bg-secondary rounded-pill">{{ item.quantity }}</span>
+                                                <a href="{% url 'add_to_order' item.menu.id %}" class="btn btn-sm btn-light py-0">+</a>
+                                            </div>
+                                        </td>
+                                        <td class="fw-bold small">${{ item.subtotal }}</td>
+                                        <td>
+                                            <a href="{% url 'remove_from_order' item.menu.id %}" class="text-danger">
+                                                <i class="bi bi-x-circle"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-5 text-muted">No items selected</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="p-4">
+                            <div class="bg-light p-3 rounded-4">
+                                <div class="d-flex justify-content-between mb-1 small text-muted">
+                                    <span>Subtotal</span>
+                                    <span>${{ order_total }}</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between mb-3 text-primary fw-bold">
+                                    <h5 class="mb-0">Total</h5>
+                                    <h5 class="mb-0">${{ order_total }}</h5>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow" 
+                                        {% if not order_items %}disabled{% endif %}>
+                                    Place Kitchen Order
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

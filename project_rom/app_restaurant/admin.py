@@ -1,6 +1,6 @@
 from django.contrib import admin
-from app_restaurant.models import Category, Menu, Customer, Table,\
-Order, OrderItem
+from app_restaurant.models import Category, Menu
+from app_orders.models import Customer, Table, Order, OrderItem
 
 # Register your models here.
 class AdminMenu(admin.ModelAdmin):

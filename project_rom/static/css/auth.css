@@ -1,0 +1,41 @@
+/* auth.css */
+
+.auth-wrapper {
+    min-height: 100vh;
+    /* This padding-top ensures the navbar doesn't cover the card */
+    padding-top: 100px; 
+    padding-bottom: 50px;
+    background-color: #f8f9fa;
+    display: flex;
+    align-items: center;
+}
+
+.auth-card {
+    border-radius: 20px !important;
+}
+
+/* Floating labels effect for the Login page */
+.form-floating > .form-control:focus, 
+.form-floating > .form-control:not(:placeholder-shown) {
+    padding-top: 1.625rem;
+    padding-bottom: 0.625rem;
+}
+
+.btn-primary {
+    background-color: var(--primary-color-mid);
+    border: none;
+    transition: transform 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    background-color: var(--primary-color-dark);
+}
+
+
+/* Specific fix for mobile where navbar might be taller */
+@media (max-width: 991px) {
+    .auth-wrapper {
+        padding-top: 120px;
+    }
+}
